@@ -1,14 +1,17 @@
-import express from 'express';
-import logger from 'morgan';
 import cors from 'cors';
-import mongoose from 'mongoose';
+import logger from 'morgan';
 import dotenv from 'dotenv';
+import express from 'express';
+import mongoose from 'mongoose';
 
-import { router } from './routes/api/contacts.js';
+import { usersRouter } from './routes/api/users.js';
+import { contactsRouter } from './routes/api/contacts.js';
+import passportAuth from './config/jwt.js';
+import { authMiddleware } from './middleware/authMiddleware.js';
+
 dotenv.config();
 const app = express();
-
-const uriDb = process.env.URI_DB;
+const { URI_DB: uriDb } = process.env;
 
 const connectDB = async () => {
   try {
@@ -28,9 +31,11 @@ const formatsLogger = app.get('env') === 'development' ? 'dev' : 'short';
 app.use(logger(formatsLogger));
 app.use(cors());
 app.use(express.json());
+passportAuth();
 app.use(express.urlencoded({ extended: false }));
 
-app.use('/api/contacts', router);
+app.use('/api/contacts', authMiddleware, contactsRouter);
+app.use('/users', usersRouter);
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Contact with the given ID was not found' });
@@ -44,5 +49,3 @@ app.use((err, req, res, next) => {
 });
 
 connectDB();
-
-export { app };
