@@ -9,7 +9,7 @@ const config = {
     },
   };
   
-  export async function sendEmail(to, token) {
+  export function sendEmail(to, token) {
   const transporter = nodemailer.createTransport(config);
   const emailOptions = {
     from: 'noreply@sandbox51aef75c4c0f4a668c7459758faf2c2e.mailgun.org',

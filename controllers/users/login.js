@@ -23,6 +23,16 @@ export async function login(req, res, next) {
     }
 
     const user = await findUser({ email });
+
+    if (!user.verify) {
+      return res
+        .status(400)
+        .json({
+          message:
+            'Please check your email inbox for a verification message from us and click on the provided link to confirm your account.',
+        });
+    }
+    
     const { subscription } = user;
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
     if (!user || !isPasswordCorrect) {
